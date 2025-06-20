@@ -1,3 +1,5 @@
+import argparse
+import os
 import xarray as xr
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
@@ -5,9 +7,22 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
 # Script to generate SWAN bathymetry from GEBCO
-swn_file = "../00_outputdata/INPGRID_GRID_for_SWAN.txt"
-bot_file = "../00_outputdata/SWAN_output.bot"
-grd_file = "../00_outputdata/SWAN_output.grd"
+parser = argparse.ArgumentParser(
+    description="Generate SWAN bathymetry and grid files from GEBCO"
+)
+parser.add_argument(
+    "--output-dir",
+    default="../00_outputdata",
+    help="Directory to store generated grid and bathymetry files",
+)
+args = parser.parse_args()
+
+output_dir = args.output_dir
+os.makedirs(output_dir, exist_ok=True)
+
+swn_file = os.path.join(output_dir, "INPGRID_GRID_for_SWAN.txt")
+bot_file = os.path.join(output_dir, "SWAN_output.bot")
+grd_file = os.path.join(output_dir, "SWAN_output.grd")
 bot_file_swn = "./SWAN_output.bot"
 grd_file_swn = "./SWAN_output.grd"
 

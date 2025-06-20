@@ -1,6 +1,8 @@
+import argparse
+import os
+import shutil
 import xarray as xr
 import matplotlib.pyplot as plt
-import shutil, os
 import csv
 import glob
 import numpy as np
@@ -9,6 +11,19 @@ import matplotlib.colors as mcolors
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import pandas as pd
+
+parser = argparse.ArgumentParser(
+    description="Generate SWAN wind forcing files from WRF output"
+)
+parser.add_argument(
+    "--output-dir",
+    default="../00_outputdata",
+    help="Directory to store generated SWAN wind files",
+)
+args = parser.parse_args()
+
+output_dir = args.output_dir
+os.makedirs(output_dir, exist_ok=True)
 
 # 1. Data preparation and CSV aggregation
 print("Current working directory:", os.getcwd())
@@ -26,7 +41,8 @@ u10_list = []
 v10_list = []
 time_list = []
 
-with open('../00_outputdata/SWAN_wind_timeseries_JEBI.win', 'w', newline='') as csvfile:
+wind_csv = os.path.join(output_dir, 'SWAN_wind_timeseries_JEBI.win')
+with open(wind_csv, 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter='\t')
     for i, f in enumerate(file_list, 1):
         fname = os.path.basename(f)
@@ -163,7 +179,7 @@ def update(frame):
     return []
 
 anim = FuncAnimation(fig, update, frames=wind_speed.shape[0], interval=400, blit=False)
-anim.save('../00_outputdata/wind_composite.gif', writer=PillowWriter(fps=2))
+anim.save(os.path.join(output_dir, 'wind_composite.gif'), writer=PillowWriter(fps=2))
 plt.close(fig)
 print("Saved contourf + quiver wind animation!")
 
@@ -194,7 +210,7 @@ else:
     dt_val = int(dt_seconds)
     dt_unit = 'SEC'
 
-wind_file = '../00_outputdata/SWAN_wind_timeseries.win'
+wind_file = os.path.join(output_dir, 'SWAN_wind_timeseries.win')
 
 # Display grid origin information
 origin_lon = float(lons[0,0])
@@ -235,7 +251,10 @@ swan_inpgrid_text = (
 
 print(swan_inpgrid_text)
 
-with open("../00_outputdata/INPGRID_WIND_for_SWAN.txt", 'w', encoding='utf-8') as f:
+swan_out = os.path.join(output_dir, 'INPGRID_WIND_for_SWAN.txt')
+with open(swan_out, 'w', encoding='utf-8') as f:
     f.write(swan_inpgrid_text)
 
-print("Saved SWAN output section (INPGRID WIND + OUTPUT settings) to ../00_outputdata/INPGRID_WIND_for_SWAN.txt.")
+print(
+    f"Saved SWAN output section (INPGRID WIND + OUTPUT settings) to {swan_out}."
+)
