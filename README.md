@@ -30,6 +30,9 @@ setup_env.sh  # Convenience script to set up a virtual environment
 README.md  # This file
 ```
 
+## License
+See [LICENSE](LICENSE) for licensing details.
+
 ## Proposed Improvements
 The current scripts work but require manual editing and contain Japanese comments. Future tasks include:
 - Translate all comments and messages into English for easier collaboration.
