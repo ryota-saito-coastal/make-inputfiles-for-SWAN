@@ -1,4 +1,4 @@
-# SWAN Input File Generation
+# make inputfiles for SWAN
 
 This repository provides helper scripts to create input data for the [SWAN](https://swanmodel.sourceforge.io/) wave model.
 
