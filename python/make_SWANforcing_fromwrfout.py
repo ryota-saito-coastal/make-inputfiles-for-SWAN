@@ -167,7 +167,7 @@ anim.save('../00_outputdata/wind_composite.gif', writer=PillowWriter(fps=2))
 plt.close(fig)
 print("contourf＋quiverの海上風アニメを保存しました！")
 
-# 4. SWAN INPGRID WIND行の自動出力（★ここが追加機能★）
+# 4. SWAN INPGRID WIND行の自動出力（★ここが追加機能★）dsdsd
 
 fmt = "%Y-%m-%d_%H:%M:%S"
 
