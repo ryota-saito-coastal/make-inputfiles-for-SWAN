@@ -87,16 +87,6 @@ Just like Riko and Mirai from *Mahou Tsukai Precure!*—who brighten the world w
 
 ---
 
-## Proposed Improvements
-
-- Translate all comments/messages into English
-- Fully parameterize scripts with command-line options (ongoing; `--output-dir` is supported)
-- Add docstrings and CLI usage examples
-- Include automated tests for input file generation
-- Add a license file and contribution guidelines
-
----
-
 ## Feedback
 
 Feel free to open issues or submit pull requests. Contributions are very welcome.
