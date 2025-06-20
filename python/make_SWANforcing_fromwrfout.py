@@ -10,17 +10,17 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import pandas as pd
 
-# 1. データ準備・一括CSV作成
-print("現在の作業ディレクトリ:", os.getcwd())
-print("カレントディレクトリ内容:", os.listdir('.'))
+# 1. Data preparation and CSV aggregation
+print("Current working directory:", os.getcwd())
+print("Contents of current directory:", os.listdir('.'))
 
-# ▼ WRF時系列データ一覧取得
+# ▼ Obtain list of WRF time-series files
 file_list = sorted(
     glob.glob(r'\\wsl.localhost\Ubuntu-22.04\home\rsaito_wsl\WRF\WRF-4.5.2-ARW\RUN\run_project_JEBI_sstupdate\wrfout_d01_2018-0*')
 )
 local_dir = r'F:/tmp'
 os.makedirs(local_dir, exist_ok=True)
-print(f"対象ファイル数: {len(file_list)}")
+print(f"Number of target files: {len(file_list)}")
 
 u10_list = []
 v10_list = []
@@ -31,19 +31,19 @@ with open('../00_outputdata/SWAN_wind_timeseries_JEBI.win', 'w', newline='') as 
     for i, f in enumerate(file_list, 1):
         fname = os.path.basename(f)
         local_tmp = os.path.join(local_dir, fname)
-        print(f"[{i}/{len(file_list)}] コピー中: {fname} ...", end='')
+        print(f"[{i}/{len(file_list)}] Copying: {fname} ...", end='')
         shutil.copy(f, local_tmp)
-        print(" 完了。開いて処理...", end='')
+        print(" done. Processing...", end='')
         ds = xr.open_dataset(local_tmp)
         u10 = ds['U10'][0].values
         v10 = ds['V10'][0].values
-        lons = ds['XLONG'][0].values  # 2次元
+        lons = ds['XLONG'][0].values  # 2D
         lats = ds['XLAT'][0].values
         u10_list.append(u10)
         v10_list.append(v10)
         val = ds['Times'][0].values
         if isinstance(val, np.ndarray):
-            val = val.item()  # ndarrayのときだけ値を取り出す
+            val = val.item()  # extract value if ndarray
         if isinstance(val, (bytes, np.bytes_)):
             timestr = val.decode('utf-8').strip()
         else:
@@ -53,17 +53,17 @@ with open('../00_outputdata/SWAN_wind_timeseries_JEBI.win', 'w', newline='') as 
         print('DEBUG timestr:', repr(timestr), type(timestr))
         print(ds['Times'][0])
         print(timestr)
-        print(" 書き込み...", end='')
+        print(" Writing...", end='')
         for row in u10:
             writer.writerow([round(val, 2) for val in row])
         for row in v10:
             writer.writerow([round(val, 2) for val in row])
         ds.close()
         os.remove(local_tmp)
-        print(" 削除＆完了。")
-print("全SWAN用CSV出力が終了しました。")
+        print(" Deleted temporary file. Done.")
+print("Finished writing all SWAN CSV files.")
 
-# 2. データ読み込み・可視化準備
+# 2. Load data and prepare for visualization
 u10_arr = np.array(u10_list)
 v10_arr = np.array(v10_list)
 wind_speed = np.sqrt(u10_arr**2 + v10_arr**2)
@@ -73,7 +73,7 @@ levels = np.arange(vmin, vmax+1, 2)
 ticks  = np.arange(vmin, vmax+5, 5)
 norm   = mcolors.BoundaryNorm(boundaries=levels, ncolors=256)
 
-# 3. 可視化部（地図・緯度経度対応）
+# 3. Visualization (map with latitude/longitude)
 fig = plt.figure(figsize=(10, 8))
 ax = plt.axes(projection=ccrs.PlateCarree())
 
@@ -165,9 +165,9 @@ def update(frame):
 anim = FuncAnimation(fig, update, frames=wind_speed.shape[0], interval=400, blit=False)
 anim.save('../00_outputdata/wind_composite.gif', writer=PillowWriter(fps=2))
 plt.close(fig)
-print("contourf＋quiverの海上風アニメを保存しました！")
+print("Saved contourf + quiver wind animation!")
 
-# 4. SWAN INPGRID WIND行の自動出力（★ここが追加機能★）dsdsd
+# 4. Automatic generation of SWAN INPGRID WIND section (added feature)
 
 fmt = "%Y-%m-%d_%H:%M:%S"
 
@@ -196,23 +196,23 @@ else:
 
 wind_file = '../00_outputdata/SWAN_wind_timeseries.win'
 
-# 原点情報の表示
+# Display grid origin information
 origin_lon = float(lons[0,0])
 origin_lat = float(lats[0,0])
 dx = float(lons[0,1] - lons[0,0]) if lons.shape[1] > 1 else np.nan
 dy = float(lats[1,0] - lats[0,0]) if lats.shape[0] > 1 else np.nan
-print(f"\n=== SWAN格子情報 ===")
-print(f"グリッド原点（最西南点）経度: {origin_lon}")
-print(f"グリッド原点（最西南点）緯度: {origin_lat}")
-print(f"経度間隔: {dx}, 緯度間隔: {dy}")
-print(f"格子点数: nx = {nx}, ny = {ny}")
+print(f"\n=== SWAN grid information ===")
+print(f"Grid origin longitude (southwest corner): {origin_lon}")
+print(f"Grid origin latitude (southwest corner): {origin_lat}")
+print(f"Longitude spacing: {dx}, Latitude spacing: {dy}")
+print(f"Number of grid points: nx = {nx}, ny = {ny}")
 
-# INPGRID WIND行の自動生成
-output_dt = "20 MIN"  # 出力間隔（既定値そのまま）
-calc_dt  = "30 SEC"  # BLOCK出力間隔（既定値そのまま）
+# Generate INPGRID WIND line automatically
+output_dt = "20 MIN"  # Output interval (default)
+calc_dt  = "30 SEC"  # BLOCK output interval (default)
 output_dir = "./output"
 
-# swn本体
+# Core SWAN settings
 swan_inpgrid_text = (
     '$** Wind settings **\n'
     "$\n"
@@ -238,4 +238,4 @@ print(swan_inpgrid_text)
 with open("../00_outputdata/INPGRID_WIND_for_SWAN.txt", 'w', encoding='utf-8') as f:
     f.write(swan_inpgrid_text)
 
-print("SWAN出力部（INPGRID WIND＋OUTPUT設定）を ../00_outputdata/INPGRID_WIND_for_SWAN.txt に保存しました。")
+print("Saved SWAN output section (INPGRID WIND + OUTPUT settings) to ../00_outputdata/INPGRID_WIND_for_SWAN.txt.")
