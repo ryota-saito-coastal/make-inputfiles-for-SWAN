@@ -32,7 +32,7 @@ README.md  # This file
 
 ## License
 See [LICENSE](LICENSE) for licensing details.
----
+
 Just like Riko and Mirai—the magical girls from Mahou Tsukai Precure!—who spark joy with their Linkle magic and unbreakable friendship,
 you're free to remix this code, make it shimmer, and craft your own enchanted twist.
 Just don’t forget to leave a little stardust in the credits, so the original magic can keep sparkling on.
